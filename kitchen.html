@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitchen</title>
+
+    <!-- css -->
+    <link rel="stylesheet" href="css/style.css"> 
+    <!-- bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <!-- socket.io -->
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+</head>
+<body class="p-5 bg-danger">
+    
+    <div class="card">
+        <h5 class="card-header" style="padding: 20px 0 20px 35px">Kitchen</h5>
+        <div class="card-body" style="margin: 20px">
+            <div class="card">
+                
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Table</th>
+                            <th scope="col">Image</th>
+                            <th scope="col">Menu</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Total Price</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="box-shop">
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io.connect('http://localhost:3000')
+        var box = document.querySelector('#box-shop')
+        var html = '';
+        var count = 0;
+        var image = '';
+
+        socket.on('shop', (response) => {
+            console.log(response);
+            count++;
+            var sum = response.amount * response.price;
+            console.log(response.order)
+            if ( response.order == "ข้าวผัดกุ้ง" ){
+                image = "img/1.jpg"
+            }else if ( response.order == "ต้มยำกุ้ง" ){
+                image = "img/2.jpg"
+            }else if ( response.order == "ข้าวมันไก่" ){
+                image = "img/3.jpg"
+            }else if ( response.order == "ข้าวต้มปลา" ){
+                image = "img/4.jpg"
+            }else if ( response.order == "ผัดกระเพราหมูสับไข่ดาว" ){
+                image = "img/5.jpg"
+            }else{
+                image = "img/6.jpg"
+            }
+
+            html += `
+                <tr id="order${count}">
+                        <td>${response.table}</td>
+                        <td><img class="" style="width: 80px; height: 50px; object-fit: cover;" src="${image}"></td>
+                        <td>${response.order}</td>
+                        <td>${response.price} ฿</td>
+                        <td>${response.amount}</td>
+                        <td>${sum} ฿</td>
+                        <td><div onclick="orderDone(${count})" class="btn btn-danger">
+                            Close order
+                        </div></td>
+                </tr>
+            `
+
+            box.innerHTML = html;
+        })
+
+
+        function orderDone(index) {
+            document.querySelector("#order"+index).remove();
+            html = document.querySelector('#box-shop').innerHTML;
+        }
+    </script>
+
+</body>
+</html>
